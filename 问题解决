@@ -1,11 +1,10 @@
-#  问题解决指南
+# 🛠️ 问题解决指南
 
-## 环境配置
+## 📦 环境配置
 
 ### 软件版本冲突
 
 多个版本的 Go/Node.js 可能导致命令异常，建议清理后使用版本管理工具。
-
 ```bash
 # 检查已安装版本
 which -a go
@@ -29,7 +28,6 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 ### 国内镜像加速
 
 #### Go 模块代理
-
 ```bash
 export GOPROXY=https://goproxy.cn,direct
 export GOSUMDB=sum.golang.google.cn
@@ -39,7 +37,6 @@ echo 'export GOPROXY=https://goproxy.cn,direct' >> ~/.bashrc
 ```
 
 #### NPM 镜像源
-
 ```bash
 npm config set registry https://registry.npmmirror.com
 npm config get registry  # 验证配置
@@ -68,7 +65,6 @@ sudo systemctl restart docker
 ```
 
 #### Ubuntu APT 源
-
 ```bash
 # 备份原文件
 sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
@@ -78,7 +74,7 @@ sudo sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
 sudo apt update
 ```
 
-##  网络配置
+## 🌐 网络配置
 
 ### 端口占用冲突
 
@@ -145,7 +141,7 @@ geth attach http://localhost:8545
 ]
 ```
 
-##  路径与权限
+## 📁 路径与权限
 
 ### 权限错误
 
@@ -161,7 +157,6 @@ chmod 600 ./blockchain-data/keystore/*
 ```
 
 ### 推荐目录结构
-
 ```
 blockchain-network/
 ├── node1/
@@ -218,7 +213,7 @@ geth removedb --datadir ./node1/data
 geth init --datadir ./node1/data genesis.json
 ```
 
-##  账户与密钥
+## 🔐 账户与密钥
 
 ### 解锁账户
 
@@ -247,7 +242,7 @@ tar -czf keystore-backup-$(date +%Y%m%d).tar.gz ./node*/keystore
 geth account export <address> --datadir ./node1/data
 ```
 
-##  性能优化
+## ⚡ 性能优化
 
 ### 同步加速
 
@@ -278,7 +273,7 @@ geth removedb --datadir ./node1/data
 geth --log.rotate --log.maxsize 100
 ```
 
-##  智能合约部署
+## 📝 智能合约部署
 
 ### Gas 估算失败
 
@@ -301,7 +296,7 @@ geth attach
 > eth.getTransactionReceipt("0xTxHash")
 ```
 
-##  调试工具
+## 🔍 调试工具
 
 ### 日志分析
 
@@ -334,7 +329,7 @@ curl -X POST http://localhost:8545 \
 geth attach --exec "eth.syncing" http://localhost:8545
 ```
 
-##  常用命令速查
+## 📋 常用命令速查
 
 | 命令 | 说明 |
 |:-----|:-----|
@@ -347,7 +342,7 @@ geth attach --exec "eth.syncing" http://localhost:8545
 | `eth.blockNumber` | 查看当前区块高度 |
 | `miner.start()` / `miner.stop()` | 启动/停止挖矿 |
 
-##  最佳实践
+## 💡 最佳实践
 
 - **服务管理**：使用 systemd 管理节点服务，实现开机自启
 - **监控告警**：配置 Prometheus + Grafana 监控节点状态
