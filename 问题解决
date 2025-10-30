@@ -1,0 +1,104 @@
+1.环境配置问题
+软件安装冲突:
+# 检查电脑里装了哪些版本
+which -a go
+which -a node
+# 删除旧版本
+sudo apt remove golang-go
+sudo apt autoremove
+
+下载太慢:
+# Go语言加速
+export GOPROXY=https://goproxy.cn,direct
+# Node.js加速
+npm config set registry https://registry.npmmirror.com
+# Ubuntu软件源加速
+sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
+sudo sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
+sudo apt update
+
+
+2.网络连接问题
+端口被占用:
+# 查看谁在用8545端口
+sudo lsof -i :8545
+# 关掉占用进程
+sudo kill -9 <进程号>
+# 换一个端口启动
+geth --datadir ./node1 --port 30304 --http.port 8546
+
+防火墙设置:
+# 开放区块链需要的端口
+sudo ufw allow 30303/tcp
+sudo ufw allow 8545/tcp
+sudo ufw enable
+
+节点连不上:
+# 进入节点控制台
+geth attach http://localhost:8545
+
+在控制台里输入:
+// 查看自己节点信息
+admin.nodeInfo.enode
+// 查看连接了几个节点
+net.peerCount
+// 手动添加朋友节点
+admin.addPeer("enode://朋友的节点地址")
+
+
+3.文件权限问题
+权限错误修复:
+# 把文件所有权改成自己
+sudo chown -R $USER:$USER ./blockchain-data
+# 设置正确权限
+chmod 700 ./blockchain-data
+chmod 600 ./blockchain-data/keystore/*
+
+
+4.创世区块问题
+初始化失败:
+# 删除旧数据重新开始
+rm -rf ./node1/data/geth
+# 重新初始化
+geth --datadir ./node1/data init genesis.json
+
+所有节点配置要一致:
+# 检查所有节点的创世文件是否相同
+md5sum genesis.json
+
+
+5.账户密码问题
+解锁账户:
+# 方法1：启动时解锁
+geth --unlock "你的账户地址" --password 密码文件.txt
+# 方法2：在控制台里解锁
+geth attach
+javascript里 personal.unlockAccount(eth.accounts[0], "密码", 0)
+
+备份重要文件:
+# 备份所有账户文件
+tar -czf 备份-$(date +%Y%m%d).tar.gz ./节点*/keystore
+
+
+6.性能优化
+让同步更快:
+# 增加内存缓存
+geth --cache 2048 --datadir ./节点1/data
+# 使用快速同步模式
+geth --syncmode "snap"
+
+清理磁盘空间:
+# 删除旧数据释放空间
+geth removedb --datadir ./节点1/data
+
+7.常用检查命令
+# 查看节点版本
+geth version
+# 列出所有账户
+geth account list
+# 进入控制台
+geth console
+# 查看区块高度
+geth attach --exec "eth.blockNumber"
+
+
