@@ -1,10 +1,11 @@
-# 🛠️ 问题解决指南
+# 问题解决指南
 
-## 📦 环境配置
+## 环境配置
 
 ### 软件版本冲突
 
 多个版本的 Go/Node.js 可能导致命令异常，建议清理后使用版本管理工具。
+
 ```bash
 # 检查已安装版本
 which -a go
@@ -16,11 +17,13 @@ sudo apt autoremove
 ```
 
 Go 推荐使用 gvm：
+
 ```bash
 bash < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer)
 ```
 
 Node.js 推荐使用 nvm：
+
 ```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 ```
@@ -28,6 +31,7 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 ### 国内镜像加速
 
 #### Go 模块代理
+
 ```bash
 export GOPROXY=https://goproxy.cn,direct
 export GOSUMDB=sum.golang.google.cn
@@ -37,19 +41,22 @@ echo 'export GOPROXY=https://goproxy.cn,direct' >> ~/.bashrc
 ```
 
 #### NPM 镜像源
+
 ```bash
 npm config set registry https://registry.npmmirror.com
-npm config get registry  # 验证配置
+npm config get registry
 ```
 
 #### Docker 镜像加速
 
 编辑配置文件：
+
 ```bash
 sudo vim /etc/docker/daemon.json
 ```
 
 添加以下内容：
+
 ```json
 {
   "registry-mirrors": [
@@ -60,11 +67,13 @@ sudo vim /etc/docker/daemon.json
 ```
 
 重启 Docker：
+
 ```bash
 sudo systemctl restart docker
 ```
 
 #### Ubuntu APT 源
+
 ```bash
 # 备份原文件
 sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
@@ -74,22 +83,25 @@ sudo sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
 sudo apt update
 ```
 
-## 🌐 网络配置
+## 网络配置
 
 ### 端口占用冲突
 
 查看端口占用情况：
+
 ```bash
 sudo lsof -i :8545
 sudo netstat -tulpn | grep 8545
 ```
 
 终止占用进程：
+
 ```bash
 sudo kill -9 <PID>
 ```
 
 修改默认端口：
+
 ```bash
 geth --datadir ./node1 --port 30304 --http.port 8546
 ```
@@ -97,13 +109,15 @@ geth --datadir ./node1 --port 30304 --http.port 8546
 ### 防火墙配置
 
 使用 UFW：
+
 ```bash
-sudo ufw allow 30303/tcp  # P2P 端口
-sudo ufw allow 8545/tcp   # RPC 端口
+sudo ufw allow 30303/tcp
+sudo ufw allow 8545/tcp
 sudo ufw enable
 ```
 
 使用 iptables：
+
 ```bash
 sudo iptables -A INPUT -p tcp --dport 30303 -j ACCEPT
 sudo iptables-save | sudo tee /etc/iptables/rules.v4
@@ -112,27 +126,32 @@ sudo iptables-save | sudo tee /etc/iptables/rules.v4
 ### 节点互联失败
 
 进入控制台检查：
+
 ```bash
 geth attach http://localhost:8545
 ```
 
 查看节点信息：
+
 ```javascript
-> admin.nodeInfo.enode
+admin.nodeInfo.enode
 ```
 
 手动添加对等节点：
+
 ```javascript
-> admin.addPeer("enode://...")
+admin.addPeer("enode://...")
 ```
 
 检查连接状态：
+
 ```javascript
-> net.peerCount
-> admin.peers
+net.peerCount
+admin.peers
 ```
 
 也可以创建 `static-nodes.json` 文件：
+
 ```json
 [
   "enode://pubkey1@ip1:30303",
@@ -141,22 +160,25 @@ geth attach http://localhost:8545
 ]
 ```
 
-## 📁 路径与权限
+## 路径与权限
 
 ### 权限错误
 
 设置正确的所有者：
+
 ```bash
 sudo chown -R $USER:$USER ./blockchain-data
 ```
 
 设置适当权限：
+
 ```bash
 chmod 700 ./blockchain-data
 chmod 600 ./blockchain-data/keystore/*
 ```
 
 ### 推荐目录结构
+
 ```
 blockchain-network/
 ├── node1/
@@ -171,31 +193,36 @@ blockchain-network/
 ```
 
 使用绝对路径避免混淆：
+
 ```bash
 DATADIR=/home/user/blockchain-network/node1
 geth --datadir $PWD/node1/data
 ```
 
-## ⛓️ 创世区块
+## 创世区块
 
 ### 初始化失败
 
 常见原因：
+
 - chainId 冲突（避免使用 1、3、4 等公链 ID）
 - JSON 格式错误
 - 配置参数不匹配
 
 清理旧数据：
+
 ```bash
 rm -rf ./node1/data/geth
 ```
 
 重新初始化：
+
 ```bash
 geth --datadir ./node1/data init genesis.json
 ```
 
 验证 JSON 格式：
+
 ```bash
 cat genesis.json | jq '.'
 ```
@@ -203,60 +230,70 @@ cat genesis.json | jq '.'
 ### 创世区块不一致
 
 节点出现 `genesis mismatch` 错误时，确保所有节点使用相同配置：
+
 ```bash
 md5sum genesis.json
 ```
 
 完全重置节点：
+
 ```bash
 geth removedb --datadir ./node1/data
 geth init --datadir ./node1/data genesis.json
 ```
 
-## 🔐 账户与密钥
+## 账户与密钥
 
 ### 解锁账户
 
 启动时解锁：
+
 ```bash
 geth --unlock "0xYourAddress" --password password.txt
 ```
 
 控制台解锁：
+
 ```bash
 geth attach
 ```
+
 ```javascript
-> personal.unlockAccount(eth.accounts[0], "password", 0)
+personal.unlockAccount(eth.accounts[0], "password", 0)
 ```
 
 ### 备份 Keystore
 
 定期备份：
+
 ```bash
 tar -czf keystore-backup-$(date +%Y%m%d).tar.gz ./node*/keystore
 ```
 
 导出私钥（谨慎操作）：
+
 ```bash
 geth account export <address> --datadir ./node1/data
 ```
 
-## ⚡ 性能优化
+## 性能优化
 
 ### 同步加速
 
 增加缓存：
+
 ```bash
 geth --cache 2048 --datadir ./node1/data
 ```
 
 快速同步模式：
+
 ```bash
 geth --syncmode "snap"
 ```
 
 限制数据库大小：
+
 ```bash
 geth --cache.database 50
 ```
@@ -264,20 +301,23 @@ geth --cache.database 50
 ### 磁盘空间管理
 
 清理旧数据：
+
 ```bash
 geth removedb --datadir ./node1/data
 ```
 
 启用日志轮转：
+
 ```bash
 geth --log.rotate --log.maxsize 100
 ```
 
-## 📝 智能合约部署
+## 智能合约部署
 
 ### Gas 估算失败
 
 手动设置 gas 参数：
+
 ```javascript
 const tx = await contract.deploy({
   gasLimit: 3000000,
@@ -288,29 +328,34 @@ const tx = await contract.deploy({
 ### 合约地址为空
 
 确保节点正在挖矿：
+
 ```bash
 geth attach
 ```
+
 ```javascript
-> miner.start(1)
-> eth.getTransactionReceipt("0xTxHash")
+miner.start(1)
+eth.getTransactionReceipt("0xTxHash")
 ```
 
-## 🔍 调试工具
+## 调试工具
 
 ### 日志分析
 
 实时查看日志：
+
 ```bash
 tail -f ./node1/data/geth.log
 ```
 
 启用详细日志：
+
 ```bash
 geth --verbosity 5 --log.debug
 ```
 
 筛选错误信息：
+
 ```bash
 grep "ERROR" ./node1/data/geth.log
 ```
@@ -318,6 +363,7 @@ grep "ERROR" ./node1/data/geth.log
 ### 健康检查
 
 测试 RPC 连接：
+
 ```bash
 curl -X POST http://localhost:8545 \
   -H "Content-Type: application/json" \
@@ -325,14 +371,15 @@ curl -X POST http://localhost:8545 \
 ```
 
 检查同步状态：
+
 ```bash
 geth attach --exec "eth.syncing" http://localhost:8545
 ```
 
-## 📋 常用命令速查
+## 常用命令速查
 
 | 命令 | 说明 |
-|:-----|:-----|
+|------|------|
 | `geth version` | 查看版本信息 |
 | `geth account list --datadir <path>` | 列出所有账户 |
 | `geth console` | 启动交互式控制台 |
@@ -342,7 +389,7 @@ geth attach --exec "eth.syncing" http://localhost:8545
 | `eth.blockNumber` | 查看当前区块高度 |
 | `miner.start()` / `miner.stop()` | 启动/停止挖矿 |
 
-## 💡 最佳实践
+## 最佳实践
 
 - **服务管理**：使用 systemd 管理节点服务，实现开机自启
 - **监控告警**：配置 Prometheus + Grafana 监控节点状态
