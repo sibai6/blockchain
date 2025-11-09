@@ -1,0 +1,155 @@
+# `工作量证明(PoW)区块链代码 - 分段解析`
+
+##  `第一部分：导入必要的库`
+
+`python`
+
+`#!/usr/bin/env python3`
+`import hashlib`
+`import time`
+
+`**功能说明**：`
+
+- `hashlib：用于计算SHA-256哈希值，这是PoW挖矿的核心算法`
+    
+- `time：用于计算挖矿耗时，评估不同难度级别的时间差异`
+    
+
+`---`
+
+##  `第二部分：工作量证明核心函数`
+
+`python`
+
+`def proof_of_work(difficulty=3):`
+    `prefix = '0' * difficulty  # 目标前缀，比如 "000"`
+    `nonce = 0                  # 随机数，从0开始尝试`
+    `start_time = time.time()   # 记录开始时间`
+
+`**参数说明**：`
+
+- `difficulty=3：挖矿难度，默认需要3个前导0`
+    
+- `prefix = '0' * difficulty：生成目标前缀字符串`
+    
+- `nonce = 0：计数器，用于不断尝试不同的数值`
+    
+- `start_time = time.time()：记录挖矿开始时间`
+    
+
+`---`
+
+##  `第三部分：挖矿循环逻辑`
+
+`python`
+
+    while True:
+        # 准备数据：基础数据 + nonce
+        data = f"区块链数据{nonce}"
+        
+        # 计算SHA256哈希值
+        hash_result = hashlib.sha256(data.encode()).hexdigest()
+
+`**挖矿过程**：`
+
+1. `data = f"区块链数据{nonce}"：构造待哈希的数据`
+    
+2. `hash_result = hashlib.sha256(data.encode()).hexdigest()：计算SHA-256哈希值`
+    
+3. `每次循环nonce递增，产生不同的哈希结果`
+    
+
+`---`
+
+##  `第四部分：难度检查与成功条件`
+
+`python`
+
+        # 检查是否满足难度要求
+        if hash_result.startswith(prefix):
+            end_time = time.time()
+            print("\n 挖矿成功!")
+            print(f" 找到的Nonce值: {nonce}")
+            print(f" 符合条件的哈希: {hash_result}")
+            print(f" 总耗时: {end_time - start_time:.2f} 秒")
+            print(f" 总尝试次数: {nonce + 1}")
+            return nonce, hash_result
+
+`**成功条件**：`
+
+- `hash_result.startswith(prefix)：检查哈希值是否以指定数量的0开头`
+    
+- `成功后显示：Nonce值、符合条件的哈希、总耗时、尝试次数`
+    
+- `返回找到的Nonce和对应的哈希值`
+    
+
+`---`
+
+## `第五部分：继续尝试与进度显示`
+
+`python`
+
+        # 如果不符合条件，nonce加1继续尝试
+        nonce += 1
+        
+        # 每5000次显示进度
+        if nonce % 5000 == 0:
+            current_time = time.time()
+            elapsed = current_time - start_time
+            print(f" 已尝试 {nonce} 次, 用时 {elapsed:.1f}秒, 最新哈希: {hash_result[:16]}...")
+
+`**进度监控**：`
+
+- `nonce += 1：每次失败后递增计数器`
+    
+- `nonce % 5000 == 0：每5000次尝试显示一次进度`
+    
+- `显示当前尝试次数、已用时间、最新哈希的前16位`
+    
+
+`---`
+
+##  `第六部分：多难度级别测试`
+
+`python`
+
+`def test_difficulty_levels():`
+    `"""测试不同难度级别的挖矿时间"""`
+    `print("=" * 50)`
+    `print("       区块链工作量证明学习演示")`
+    `print("=" * 50)`
+    
+    difficulties = [1, 2, 3, 4]
+    
+    for difficulty in difficulties:
+        print(f"\n 难度级别 {difficulty}: 需要 {difficulty} 个前导0")
+        print("-" * 40)
+        
+        proof_of_work(difficulty)
+        
+        print("-" * 40)
+
+`**测试设计**：`
+
+- `difficulties = [1, 2, 3, 4]：测试4个不同难度级别`
+    
+- `依次运行每个难度级别的挖矿演示`
+    
+- `清晰显示每个难度级别的开始和结束`
+    
+
+`---`
+
+##  `第七部分：主程序执行`
+
+`python`
+
+# `运行演示`
+`if __name__ == "__main__":`
+    `test_difficulty_levels()`
+    
+    print("\n 演示完成！现在你可以:")
+    print("1. 修改难度值观察挖矿时间变化")
+    print("2. 学习代码理解每个部分的作用")
+    print("3. 提问了解具体实现细节")
