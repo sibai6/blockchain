@@ -1,0 +1,208 @@
+---
+tags: [区块链, 权益证明, Python编程]
+date: {{date}}
+---
+# 权益证明(`PoS`)区块链代码 - 分段解析
+
+## 第一部分：导入必要的库
+
+python
+
+import `hashlib`
+import time
+import random
+from collections import `defaultdict`
+
+**功能说明**：
+
+- `hashlib`：用于计算SHA-256哈希值，生成区块的数字指纹
+    
+- `time`：用于获取时间戳，记录每个区块的创建时间
+    
+- `random`：用于生成随机数，实现基于权益的随机选择
+    
+- `defaultdict`：提供带默认值的字典，自动处理不存在的键
+    
+
+---
+
+##  第二部分：定义主类
+
+python
+
+class `SimplePoS:`
+
+**类定义**：
+
+- `class`：Python中定义类的关键字
+    
+- `SimplePoS`：类名，表示"简易权益证明系统"
+    
+- 这是一个蓝图模板，用于创建具体的区块链实例
+    
+
+---
+
+##  第三部分：初始化方法
+
+python
+
+    def __init__(self):
+        self.chain = []
+        self.stakes = defaultdict(int)
+        self.stakes['Alice'] = 100
+        self.stakes['Bob'] = 200
+        self.create_genesis_block()
+
+**代码详解**：
+
+- `def __init__(self):`：构造函数，创建对象时自动执行
+    
+- `self.chain = []`：初始化空的区块链列表
+    
+- `self.stakes = defaultdict(int)`：创建权益登记表，默认值为0
+    
+- `self.stakes['Alice'] = 100`：给Alice分配100个权益币
+    
+- `self.stakes['Bob'] = 200`：给Bob分配200个权益币
+    
+- `self.create_genesis_block()`：调用方法创建第一个区块
+    
+
+---
+
+##  第四部分：创世区块创建
+
+python
+
+    def create_genesis_block(self):
+        genesis_block = {
+            'index': 0,
+            'previous_hash': '0',
+            'validator': 'Genesis',
+            'timestamp': time.time(),
+            'hash': 'genesis_hash'
+        }
+        self.chain.append(genesis_block)
+        print("创世区块已创建！")
+
+**区块结构**：
+
+- `index: 0`：区块编号，创世区块总是编号0
+    
+- `previous_hash: '0'`：前一个区块哈希，创世区块没有前驱所以为'0'
+    
+- `validator: 'Genesis'`：验证者名称，系统自动创建
+    
+- `timestamp: time.time()`：当前时间戳
+    
+- `hash: 'genesis_hash'`：区块哈希值（简化处理）
+    
+- `self.chain.append(genesis_block)`：将创世区块添加到链中
+    
+
+---
+
+##  第五部分：验证者选择算法
+
+python
+
+    def select_validator(self):
+        total_stake = sum(self.stakes.values())
+        pick = random.uniform(0, total_stake)
+        current = 0
+        for validator, stake in self.stakes.items():
+            current += stake
+            if current > pick:
+                return validator
+        return None
+
+**算法原理**：
+
+1. `total_stake = sum(self.stakes.values())`：计算总权益（100+200=300）
+    
+2. `pick = random.uniform(0, total_stake)`：在0-300之间随机选一个数
+    
+3. 按权益比例划分选择区间：
+    
+    - Alice占据0-100区间（33.3%概率）
+        
+    - Bob占据100-300区间（66.7%概率）
+        
+4. 随机数落在谁的区间就选择谁作为验证者
+    
+
+---
+
+##  第六部分：新区块创建
+
+python
+
+    def create_new_block(self):
+        last_block = self.chain[-1]
+        validator = self.select_validator()
+        
+        new_block = {
+            'index': last_block['index'] + 1,
+            'previous_hash': last_block['hash'],
+            'validator': validator,
+            'timestamp': time.time(),
+        }
+        block_string = f"{new_block['index']}{new_block['previous_hash']}{new_block['validator']}{new_block['timestamp']}"
+        new_block['hash'] = hashlib.sha256(block_string.encode()).hexdigest()
+        
+        self.chain.append(new_block)
+        print(f"新区块 #{new_block['index']} 由 {validator} 创建。")
+        return new_block
+
+**创建流程**：
+
+1. `last_block = self.chain[-1]`：获取链上最后一个区块
+    
+2. `validator = self.select_validator()`：随机选择验证者
+    
+3. 构建新区块数据结构：
+    
+    - `index`：区块编号递增
+        
+    - `previous_hash`：指向前一个区块的哈希
+        
+    - `validator`：区块创建者
+        
+    - `timestamp`：创建时间
+        
+4. 计算区块哈希值：将区块数据拼接后计算SHA-256哈希
+    
+5. `self.chain.append(new_block)`：将新区块添加到区块链
+    
+
+---
+
+##  第七部分：主程序执行
+
+python
+
+if __name__ == "__main__":
+    pos = `SimplePoS()`
+    
+    print("初始权益分布：")
+    for validator, stake in pos.stakes.items():
+        print(f"  {validator}: {stake}")
+    
+    print("\n模拟出块过程：")
+    for i in range(5):
+        pos.create_new_block()
+    
+    print("\n最终区块链：")
+    for block in pos.chain:
+        print(f"区块 #{block['index']}: 验证者={block['validator']}, 哈希={block['hash'][:10]}...")
+
+**执行步骤**：
+
+1. `pos = SimplePoS()`：创建区块链实例，自动初始化
+    
+2. 显示初始权益分布：遍历显示Alice和Bob的权益
+    
+3. 模拟5次出块过程：循环调用`create_new_block()`方法
+    
+4. 显示最终区块链状态：遍历显示每个区块的信息
